@@ -2,6 +2,7 @@ package com.example.myapplication
 
 import android.app.AlertDialog
 import android.graphics.Bitmap
+import android.media.MediaScannerConnection
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
@@ -14,7 +15,7 @@ import okhttp3.*
 import org.json.JSONObject
 import java.io.File
 import java.io.IOException
-
+import java.util.concurrent.TimeUnit
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -47,7 +48,7 @@ class MainActivity : AppCompatActivity() {
 
                 Log.d("Update", "Calling API with image from camera")
                 // Call the function to send image bytes to the API
-                testApiWithoutImage(imageBytes)
+                callAPI(imageBytes)
             }
         }
 
@@ -60,7 +61,7 @@ class MainActivity : AppCompatActivity() {
                     val imageBytes = inputStream.readBytes()
                     Log.d("Update", "Calling API with image from gallery")
                     // Call the function to send image bytes to the API
-                    testApiWithoutImage(imageBytes)
+                    callAPI(imageBytes)
                 } else {
                     // Handle null inputStream
                     Log.d("Update", "inputStream was null, aborting.")
@@ -75,8 +76,10 @@ class MainActivity : AppCompatActivity() {
         return stream.toByteArray()
     }
 
-    private fun testApiWithoutImage(imageBytes: ByteArray) {
-        val client = OkHttpClient()
+    private fun callAPI(imageBytes: ByteArray) {
+        val client = OkHttpClient.Builder()
+            .connectTimeout(5, TimeUnit.MINUTES)
+            .build()
 
         val requestBody = MultipartBody.Builder()
             .setType(MultipartBody.FORM)
