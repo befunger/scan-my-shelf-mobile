@@ -1,8 +1,8 @@
 package com.example.myapplication
 
 import android.app.AlertDialog
+import android.content.Intent
 import android.graphics.Bitmap
-import android.media.MediaScannerConnection
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
@@ -13,7 +13,6 @@ import java.io.ByteArrayOutputStream
 
 import okhttp3.*
 import org.json.JSONObject
-import java.io.File
 import java.io.IOException
 import java.util.concurrent.TimeUnit
 
@@ -23,6 +22,14 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
     }
 
+    // Function to handle the transition to the second activity
+    private fun navigateToSecondActivity(response: Response) {
+        println("Creating intent")
+        val intent = Intent(this, ResultActivity::class.java)
+        intent.putExtra("JSON_STRING", response.body()?.string())
+        println("Switching to second activity")
+        startActivity(intent)
+    }
 
     fun selectPhoto(view: View) {
         val options = arrayOf("Take Photo", "Choose from Gallery", "Cancel")
@@ -95,27 +102,21 @@ class MainActivity : AppCompatActivity() {
             .post(requestBody)
             .build()
 
-        client.newCall(request).enqueue(object : okhttp3.Callback {
-            override fun onResponse(call: okhttp3.Call, response: okhttp3.Response) {
+        client.newCall(request).enqueue(object : Callback {
+            override fun onResponse(call: Call, response: Response) {
                 if (response.isSuccessful) {
                     println("Response code: ${response.code()}")
-                    handleApiResponse(response)
+                    Log.d("Success", "Successfully received JSON from the API")
+                    println("Response body: ${response.body()}")
+                    navigateToSecondActivity(response)
                 } else {
                     println("Error: ${response.message()}")
                 }
             }
 
-            override fun onFailure(call: okhttp3.Call, e: IOException) {
+            override fun onFailure(call: Call, e: IOException) {
                 println("Network error: ${e.message}")
             }
         })
-    }
-
-    private fun handleApiResponse(response: okhttp3.Response) {
-        // TODO: Handle the books received from the API
-        // Print the list of books to the logcat
-        Log.d("Success", "Successfully received JSON from the API")
-
-        println("Response body: ${response.body()?.string()}")
     }
 }
