@@ -19,8 +19,8 @@
 
     <Button
         android:id="@+id/button"
-        android:layout_width="222dp"
-        android:layout_height="47dp"
+        android:layout_width="260dp"
+        android:layout_height="56dp"
         android:onClick="selectPhoto"
         android:text="Add a photo"
         app:layout_constraintBottom_toBottomOf="parent"
